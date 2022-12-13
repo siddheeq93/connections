@@ -26,7 +26,7 @@
   cursor: pointer;
 }
 .highlighted-tiles {
-  border: 3px solid greenyellow;
+  border: 5px solid greenyellow;
   color: greenyellow;
 }
 .selected-tile {

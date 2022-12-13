@@ -13,14 +13,21 @@ import {
 } from "@mui/material";
 import "../style.css";
 import SearchIcon from "@mui/icons-material/Search";
-import { Link } from "react-router-dom";
-const LandingPage = () => {
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
+
+const Connection = () => {
+  let navigate = useNavigate();
+
   const [userData, setUserData] = useState(List());
   const [addModal, setAddModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState("");
   const [selectedTarget, setSelectedTarget] = useState("");
   const [searchText, setSearchText] = useState("");
   const [stackQueue, setStackQueue] = useState(List());
+  const [showConnection, setShowConnection] = useState(false);
+
   const storedConnections = JSON.parse(localStorage.getItem("userList")) || [];
 
   useEffect(() => {
@@ -37,12 +44,19 @@ const LandingPage = () => {
     [searchText, userData]
   );
 
+  const handleSelectUser = (e) => {
+    setShowConnection(false);
+    setSelectedUser(e.target.value);
+  };
+
   const findConnection = () => {
+    setShowConnection(true);
     let stack = [selectedUser];
     let tempSource = selectedUser;
     for (
       let j = 0;
-      userData.getIn([j, "connection"], "") !== selectedTarget;
+      // userData.getIn([j, "connection"], "") !== selectedTarget;
+      j < userData.size;
       j++
     ) {
       let tempItem = Map();
@@ -50,9 +64,21 @@ const LandingPage = () => {
       tempItem = userData.find(
         (item) => item.get("name", "") === tempSource //eslint-disable-line
       );
+      console.log({ tempItem });
+      if (tempItem === undefined) {
+        console.log("if called");
+        stack.push("<--");
+        setStackQueue(fromJS(stack));
+        return "";
+      } else if (tempItem.get("connection", "") === selectedTarget) {
+        stack.push(selectedTarget);
+        setStackQueue(fromJS(stack));
+        return "";
+      } else {
+        console.log("else called");
 
-      if (tempItem.get("connection", "") !== selectedTarget) {
         stack.push(tempItem.get("connection", ""));
+        setStackQueue(fromJS(stack));
         tempSource = tempItem.get("connection", "");
       }
     }
@@ -63,6 +89,12 @@ const LandingPage = () => {
     return "";
   };
 
+  const handleReset = () => {
+    setSelectedTarget("");
+    setSelectedUser("");
+    setShowConnection(false);
+  };
+  console.log({ userData });
   return (
     <div className="min-vh-100">
       <nav className="bg-secondary bg-gradient p-3">Raft Labs</nav>
@@ -82,7 +114,7 @@ const LandingPage = () => {
                   MenuProps={{ autoFocus: false }}
                   value={selectedUser}
                   label="Select User"
-                  onChange={(e) => setSelectedUser(e.target.value)}
+                  onChange={(e) => handleSelectUser(e)}
                   onClose={() => setSearchText("")}
                 >
                   <ListSubheader>
@@ -121,7 +153,7 @@ const LandingPage = () => {
             <div className="col-sm-4 align-items-center">
               <FormControl fullWidth className="mt-2">
                 <InputLabel id="demo-simple-select-label1">
-                  Connection With
+                  Select Connection
                 </InputLabel>
 
                 <Select
@@ -130,12 +162,9 @@ const LandingPage = () => {
                   MenuProps={{ autoFocus: false }}
                   value={selectedTarget}
                   placeholder="Select Connection Name"
-                  label="Connection With"
+                  label="Select Connection"
                   onChange={(e) => setSelectedTarget(e.target.value)}
                   onClose={() => setSearchText("")}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Movie" />
-                  )}
                 >
                   <ListSubheader>
                     <TextField
@@ -166,12 +195,11 @@ const LandingPage = () => {
                 </Select>
               </FormControl>
             </div>
-            <div className="col-sm-2 align-items-center ">
+            <div className="col-sm-2 align-items-center mt-3">
               {" "}
               <Button
-                className="mt-3"
                 onClick={() => findConnection()}
-                fullWidth
+                fullwidth="true"
                 variant="contained"
                 disabled={!selectedTarget || !selectedUser}
               >
@@ -180,8 +208,7 @@ const LandingPage = () => {
             </div>
             <div className="col-sm-2 align-items-center mt-3">
               <Button
-                className
-                fullWidth
+                fullwidth="true"
                 onClick={() => setAddModal(true)}
                 variant="outlined"
               >
@@ -190,22 +217,58 @@ const LandingPage = () => {
             </div>
           </div>
           <div className="bg-secondary text-white min-vh-">
-            <h3 className="mt-5">{stackQueue.toJS().join("-->")}</h3>
+            <h3 className="mt-5">
+              {showConnection
+                ? stackQueue.includes("<--")
+                  ? "No match found"
+                  : stackQueue.toJS().join("-->")
+                : ""}
+            </h3>
           </div>
-          <Link to="/chess_board">
-            <Button variant="contained">Chess</Button>
-          </Link>
+          <div className="row mb-4 mt-5 justify-content-center align-items-center">
+            <div className="col-sm-2">
+              <Button
+                onClick={() => navigate("/")}
+                fullwidth="true"
+                variant="outlined"
+              >
+                Back
+              </Button>
+            </div>
+            <div className="col-sm-2">
+              <Button
+                fullwidth="true"
+                variant="contained"
+                onClick={handleReset}
+              >
+                Reset
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
       {addModal && (
         <AddConnection
+          handleReset={handleReset}
           open={addModal}
           onCancel={() => setAddModal(false)}
           userData={userData}
           setUserData={setUserData}
         />
       )}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </div>
   );
 };
-export default LandingPage;
+export default Connection;

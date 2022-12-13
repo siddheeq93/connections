@@ -1,0 +1,8 @@
+.inner-card{
+    width: 50%;
+    min-height: 75%;
+    background-color: cadetblue;
+}
+.height-100{
+    min-height: 100px;
+}
