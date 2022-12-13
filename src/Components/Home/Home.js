@@ -13,8 +13,9 @@ import {
 } from "@mui/material";
 import "../style.css";
 import SearchIcon from "@mui/icons-material/Search";
+import { Link } from "react-router-dom";
 const LandingPage = () => {
-  const [connectionsState, setConnectionsState] = useState(List());
+  const [userData, setUserData] = useState(List());
   const [addModal, setAddModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState("");
   const [selectedTarget, setSelectedTarget] = useState("");
@@ -23,17 +24,17 @@ const LandingPage = () => {
   const storedConnections = JSON.parse(localStorage.getItem("userList")) || [];
 
   useEffect(() => {
-    storedConnections && setConnectionsState(fromJS(storedConnections));
+    storedConnections && setUserData(fromJS(storedConnections));
   }, []); //eslint-disable-line
   const doesIncludeText = (text, searchText) =>
     text.toLowerCase().indexOf(searchText.toLowerCase()) > -1;
 
   const displayedOptions = useMemo(
     () =>
-      connectionsState.filter((option) =>
+      userData.filter((option) =>
         doesIncludeText(option.get("name", ""), searchText)
       ),
-    [searchText, connectionsState]
+    [searchText, userData]
   );
 
   const findConnection = () => {
@@ -41,12 +42,12 @@ const LandingPage = () => {
     let tempSource = selectedUser;
     for (
       let j = 0;
-      connectionsState.getIn([j, "connection"], "") !== selectedTarget;
+      userData.getIn([j, "connection"], "") !== selectedTarget;
       j++
     ) {
       let tempItem = Map();
 
-      tempItem = connectionsState.find(
+      tempItem = userData.find(
         (item) => item.get("name", "") === tempSource //eslint-disable-line
       );
 
@@ -63,138 +64,148 @@ const LandingPage = () => {
   };
 
   return (
-    <>
-      <nav class="navbar navbar-light bg-secondary bg-gradient">
-        <span class="navbar-brand mb-0 h1 p-3">Raft Labs</span>
-      </nav>{" "}
-      <div className="container">
-        <div className="auto-margin mt-5 w-25">
-          <FormControl fullWidth>
-            <InputLabel id="demo-simple-select-label">Select User</InputLabel>
+    <div className="min-vh-100">
+      <nav className="bg-secondary bg-gradient p-3">Raft Labs</nav>
+      <div className="d-flex align-items-center bg-light justify-content-center">
+        <div className="w-100 container ">
+          <div className="row justify-content-center mt-5">
+            <div className="col-sm-4 align-items-center">
+              <FormControl fullWidth className="mt-2">
+                <InputLabel id="demo-simple-select-label">
+                  Select User
+                </InputLabel>
 
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select1"
-              placeholder="Select User"
-              MenuProps={{ autoFocus: false }}
-              value={selectedUser}
-              label="Select User"
-              onChange={(e) => setSelectedUser(e.target.value)}
-              onClose={() => setSearchText("")}
-            >
-              <ListSubheader>
-                <TextField
-                  size="small"
-                  autoFocus
-                  placeholder="Type to search..."
-                  fullWidth
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <SearchIcon />
-                      </InputAdornment>
-                    ),
-                  }}
-                  onChange={(e) => setSearchText(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key !== "Escape") {
-                      e.stopPropagation();
-                    }
-                  }}
-                />
-              </ListSubheader>
-              <MenuItem value={""}>
-                <em>None</em>
-              </MenuItem>
-              {displayedOptions.map((option, i) => (
-                <MenuItem key={i} value={option.get("name", "")}>
-                  {option.get("name", "")}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </div>
-        <div className="auto-margin mt-5 w-25">
-          <FormControl fullWidth>
-            <InputLabel id="demo-simple-select-label1">
-              Connection With
-            </InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select1"
+                  placeholder="Select User"
+                  MenuProps={{ autoFocus: false }}
+                  value={selectedUser}
+                  label="Select User"
+                  onChange={(e) => setSelectedUser(e.target.value)}
+                  onClose={() => setSearchText("")}
+                >
+                  <ListSubheader>
+                    <TextField
+                      size="small"
+                      autoFocus
+                      placeholder="Type to search..."
+                      fullWidth
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <SearchIcon />
+                          </InputAdornment>
+                        ),
+                      }}
+                      onChange={(e) => setSearchText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key !== "Escape") {
+                          e.stopPropagation();
+                        }
+                      }}
+                    />
+                  </ListSubheader>
+                  <MenuItem value={""}>
+                    <em>None</em>
+                  </MenuItem>
+                  {displayedOptions.map((option, i) => (
+                    <MenuItem key={i} value={option.get("name", "")}>
+                      {option.get("name", "")}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
 
-            <Select
-              labelId="demo-simple-select-label1"
-              id="demo-simple-select"
-              MenuProps={{ autoFocus: false }}
-              value={selectedTarget}
-              placeholder="Select Connection Name"
-              label="Connection With"
-              onChange={(e) => setSelectedTarget(e.target.value)}
-              onClose={() => setSearchText("")}
-              renderInput={(params) => <TextField {...params} label="Movie" />}
-            >
-              <ListSubheader>
-                <TextField
-                  size="small"
-                  autoFocus
-                  placeholder="Type to search..."
-                  fullWidth
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <SearchIcon />
-                      </InputAdornment>
-                    ),
-                  }}
-                  onChange={(e) => setSearchText(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key !== "Escape") {
-                      e.stopPropagation();
-                    }
-                  }}
-                />
-              </ListSubheader>
-              {displayedOptions.map((option, i) => (
-                <MenuItem key={i} value={option.get("connection", "")}>
-                  {option.get("connection", "")}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </div>
-        <div className="mt-3 row justify-content-center">
-          <div className="col-sm-2 align-items-center">
-            <Button
-              className
-              fullWidth
-              onClick={() => setAddModal(true)}
-              variant="outlined"
-            >
-              Add User
-            </Button>
+            <div className="col-sm-4 align-items-center">
+              <FormControl fullWidth className="mt-2">
+                <InputLabel id="demo-simple-select-label1">
+                  Connection With
+                </InputLabel>
+
+                <Select
+                  labelId="demo-simple-select-label1"
+                  id="demo-simple-select"
+                  MenuProps={{ autoFocus: false }}
+                  value={selectedTarget}
+                  placeholder="Select Connection Name"
+                  label="Connection With"
+                  onChange={(e) => setSelectedTarget(e.target.value)}
+                  onClose={() => setSearchText("")}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Movie" />
+                  )}
+                >
+                  <ListSubheader>
+                    <TextField
+                      size="small"
+                      autoFocus
+                      placeholder="Type to search..."
+                      fullWidth
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <SearchIcon />
+                          </InputAdornment>
+                        ),
+                      }}
+                      onChange={(e) => setSearchText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key !== "Escape") {
+                          e.stopPropagation();
+                        }
+                      }}
+                    />
+                  </ListSubheader>
+                  {displayedOptions.map((option, i) => (
+                    <MenuItem key={i} value={option.get("connection", "")}>
+                      {option.get("connection", "")}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+            <div className="col-sm-2 align-items-center ">
+              {" "}
+              <Button
+                className="mt-3"
+                onClick={() => findConnection()}
+                fullWidth
+                variant="contained"
+                disabled={!selectedTarget || !selectedUser}
+              >
+                Search
+              </Button>
+            </div>
+            <div className="col-sm-2 align-items-center mt-3">
+              <Button
+                className
+                fullWidth
+                onClick={() => setAddModal(true)}
+                variant="outlined"
+              >
+                Add User
+              </Button>
+            </div>
           </div>
-          <div className="col-sm-2 align-items-center">
-            <Button
-              onClick={() => findConnection()}
-              fullWidth
-              variant="contained"
-              disabled={!selectedTarget || !selectedUser}
-            >
-              Search
-            </Button>
-          </div>{" "}
+          <div className="bg-secondary text-white min-vh-">
+            <h3 className="mt-5">{stackQueue.toJS().join("-->")}</h3>
+          </div>
+          <Link to="/chess_board">
+            <Button variant="contained">Chess</Button>
+          </Link>
         </div>
-      </div>
-      <div>
-        <h3>{stackQueue.toJS().join("-->")}</h3>
       </div>
       {addModal && (
         <AddConnection
           open={addModal}
           onCancel={() => setAddModal(false)}
-          connectionsState={connectionsState}
-          setConnectionsState={setConnectionsState}
+          userData={userData}
+          setUserData={setUserData}
         />
       )}
-    </>
+    </div>
   );
 };
 export default LandingPage;

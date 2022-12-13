@@ -14,7 +14,7 @@ import {
 import { List, fromJS } from "immutable";
 import PropTypes from "prop-types";
 const AddConnection = (props) => {
-  const { open, onCancel, setConnectionsState, connectionsState } = props;
+  const { open, onCancel, setUserData, userData } = props;
   const [name, setName] = useState("");
   const [connectionType, setConnectionType] = useState("");
   const [connectionName, setConnectionName] = useState("");
@@ -37,9 +37,9 @@ const AddConnection = (props) => {
     let tempArr = [];
     tempArr = JSON.parse(localStorage.getItem("userList")) || [];
     tempArr.push({ name, connection: connectionName });
-    setConnectionsState(
-      connectionsState.set(
-        connectionsState.size,
+    setUserData(
+      userData.set(
+        userData.size,
         fromJS({ name, connection: connectionName })
       )
     );
@@ -116,10 +116,10 @@ const AddConnection = (props) => {
             !name ||
             !connectionType ||
             !connectionName ||
-            connectionsState
+            userData
               .map((item) => item.get("name", ""))
               .includes(name) ||
-            connectionsState
+            userData
               .map((item) => item.get("connection", ""))
               .includes(connectionName)
           }
@@ -134,6 +134,6 @@ AddConnection.propTypes = {
   open: PropTypes.bool,
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
-  connectionsState: PropTypes.instanceOf(List),
+  userData: PropTypes.instanceOf(List),
 };
 export default AddConnection;
