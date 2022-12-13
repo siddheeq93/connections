@@ -60,7 +60,7 @@ const Chessboard = () => {
           Click on any cell in the chessboard to see all the possible moves of a
           knight
         </p>
-        <Button onClick={() => navigate(-1)} variant='outlined' className="text-dark">Back</Button>
+        <Button onClick={() => navigate('/')} variant='outlined' className="text-dark">Back</Button>
       </div>
       <div className="chessboard">
         {getChessBoard()}

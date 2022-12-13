@@ -13,15 +13,18 @@ import {
 } from "@mui/material";
 import { List, fromJS } from "immutable";
 import PropTypes from "prop-types";
+import "../Home/style.css";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const AddConnection = (props) => {
-  const { open, onCancel, setUserData, userData } = props;
+  const { open, onCancel, setUserData, userData, handleReset } = props;
   const [name, setName] = useState("");
   const [connectionType, setConnectionType] = useState("");
   const [connectionName, setConnectionName] = useState("");
   const connectionTypes = [{ name: "Friend", value: "friend" }];
 
   const handleName = (e) => {
-    console.log("name");
     setName(e.target.value.trim());
   };
 
@@ -34,25 +37,46 @@ const AddConnection = (props) => {
   };
 
   const handleSave = () => {
+    if (userData.map((item) => item.get("name", "")).includes(name)) {
+      toast.warn("User already exist", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+      return "";
+    }
     let tempArr = [];
     tempArr = JSON.parse(localStorage.getItem("userList")) || [];
     tempArr.push({ name, connection: connectionName });
     setUserData(
-      userData.set(
-        userData.size,
-        fromJS({ name, connection: connectionName })
-      )
+      userData.set(userData.size, fromJS({ name, connection: connectionName }))
     );
 
     localStorage.setItem("userList", JSON.stringify(tempArr));
+    toast.success("User added successfully", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
+    handleReset();
     onCancel();
   };
   return (
     <Dialog open={open} onClose={onCancel} fullWidth>
       <DialogTitle>Add Connection</DialogTitle>
       <DialogContent>
-        <div className="container min-vh-75">
-          <div className="row justify-content-center align-items-center">
+        <div className="container ">
+          <div className="row height-100 justify-content-center align-items-center">
             <div className="col-sm-4">
               <TextField
                 id="outlined-name"
@@ -112,17 +136,7 @@ const AddConnection = (props) => {
         <Button
           variant="contained"
           onClick={handleSave}
-          disabled={
-            !name ||
-            !connectionType ||
-            !connectionName ||
-            userData
-              .map((item) => item.get("name", ""))
-              .includes(name) ||
-            userData
-              .map((item) => item.get("connection", ""))
-              .includes(connectionName)
-          }
+          disabled={!name || !connectionType || !connectionName}
         >
           Add
         </Button>
@@ -135,5 +149,6 @@ AddConnection.propTypes = {
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
   userData: PropTypes.instanceOf(List),
+  handleReset: PropTypes.func,
 };
 export default AddConnection;
